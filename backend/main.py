@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
 
 from backend.routes import usuarios
 from backend.routes import mural
@@ -29,4 +28,4 @@ app.include_router(pagamentos.router)
 
 @app.get("/")
 def home():
-    return FileResponse("login.html")
+    return {"mensagem": "API funcionando"}
