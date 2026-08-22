@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Perfil</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#0f172a;
+    color:white;
+    padding:30px;
+}
+
+.box{
+    background:#1e293b;
+    padding:25px;
+    border-radius:10px;
+    max-width:400px;
+}
+
+button{
+    margin-top:10px;
+    padding:10px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.voltar{
+    background:#3b82f6;
+    color:white;
+}
+
+.logout{
+    background:#ef4444;
+    color:white;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+<h1>👤 Perfil</h1>
+
+<p id="nome"></p>
+<p id="cpf"></p>
+<p id="nasc"></p>
+
+<button class="voltar" onclick="voltar()">Voltar</button>
+<button class="logout" onclick="logout()">Sair</button>
+</div>
+
+<script>
+
+// ----------- PEGAR USUÁRIO ----------- //
+let user = JSON.parse(localStorage.getItem("usuario"))
+
+if(!user){
+    alert("Usuário não logado!")
+    window.location.href = "login.html"
+}
+
+// ----------- FORMATAR DATA ----------- //
+function formatarData(data){
+    if(!data) return "Não informado"
+
+    let d = new Date(data)
+    return d.toLocaleDateString("pt-BR")
+}
+
+// ----------- MOSTRAR DADOS ----------- //
+document.getElementById("nome").innerText = "Nome: " + (user.nome || "-")
+document.getElementById("cpf").innerText = "CPF: " + (user.cpf || "-")
+document.getElementById("nasc").innerText = "Nascimento: " + formatarData(user.nascimento)
+
+// ----------- AÇÕES ----------- //
+function voltar(){
+    window.location.href = "dashboard.html"
+}
+
+function logout(){
+    localStorage.clear()
+    window.location.href = "login.html"
+}
+
+</script>
+
+</body>
+</html>

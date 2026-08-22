@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Painel do Síndico</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(135deg,#0f172a,#1e293b);
+color:white;
+}
+
+/* TOPO */
+.header{
+background:#020617;
+padding:15px;
+text-align:center;
+font-size:20px;
+}
+
+/* LAYOUT HORIZONTAL */
+.main{
+display:flex;
+height:calc(100vh - 60px);
+}
+
+/* MENU LATERAL */
+.sidebar{
+width:200px;
+background:#020617;
+padding:20px;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.sidebar button{
+background:#1e293b;
+border:none;
+padding:10px;
+color:white;
+cursor:pointer;
+border-radius:6px;
+}
+
+.sidebar button:hover{
+background:#334155;
+}
+
+/* CONTEÚDO */
+.content{
+flex:1;
+padding:20px;
+overflow-y:auto;
+}
+
+/* CARDS */
+.card{
+background:rgba(255,255,255,0.05);
+padding:20px;
+border-radius:15px;
+margin-bottom:20px;
+}
+
+input{
+width:100%;
+padding:10px;
+margin-top:10px;
+border:none;
+border-radius:6px;
+background:#1e293b;
+color:white;
+}
+
+button{
+margin-top:10px;
+padding:10px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+background:#3b82f6;
+color:white;
+}
+
+button:hover{
+background:#2563eb;
+}
+
+.delete{
+background:#ef4444;
+}
+
+.aprovar{
+background:#22c55e;
+}
+
+.item{
+background:#1e293b;
+padding:10px;
+border-radius:8px;
+margin-top:10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+🏢 Painel do Síndico
+</div>
+
+<div class="main">
+
+<!-- MENU -->
+<div class="sidebar">
+<button onclick="mostrar('mural')">📢 Mural</button>
+<button onclick="mostrar('pagamento')">💰 Pagamento</button>
+<button onclick="mostrar('reservas')">📅 Reservas</button>
+<button onclick="logout()">🚪 Sair</button>
+</div>
+
+<!-- CONTEÚDO -->
+<div class="content">
+
+<!-- MURAL -->
+<div id="mural" class="card">
+<h3>📢 Mural</h3>
+
+<input id="msg" placeholder="Nova mensagem">
+<button onclick="postar()">Postar</button>
+
+<div id="listaMural"></div>
+</div>
+
+<!-- PAGAMENTO -->
+<div id="pagamento" class="card" style="display:none;">
+<h3>💰 Pagamento</h3>
+
+<p id="valorAtual"></p>
+
+<input id="valor" placeholder="Novo valor">
+<button onclick="salvarValor()">Atualizar</button>
+</div>
+
+<!-- RESERVAS -->
+<div id="reservas" class="card" style="display:none;">
+<h3>📅 Reservas</h3>
+
+<button onclick="listarReservas()">Carregar reservas</button>
+
+<div id="listaReservas"></div>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const API = "http://127.0.0.1:8000"
+
+// ----------- FUNÇÃO BASE FETCH ----------- //
+async function apiFetch(url, method="GET", body=null){
+
+    let token = localStorage.getItem("token")
+
+    try{
+
+        const res = await fetch(API + url, {
+            method,
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: body ? JSON.stringify(body) : null
+        })
+
+        return await res.json()
+
+    }catch(e){
+
+        alert("Erro ao conectar com servidor")
+        console.error(e)
+
+    }
+}
+
+// ----------- NAVEGAÇÃO ----------- //
+function mostrar(secao){
+    ["mural","pagamento","reservas"].forEach(id=>{
+        document.getElementById(id).style.display = "none"
+    })
+    document.getElementById(secao).style.display = "block"
+}
+
+// ----------- LOGOUT ----------- //
+function logout(){
+    localStorage.clear()
+    window.location.href = "login.html"
+}
+
+// ----------- MURAL ----------- //
+async function postar(){
+    let input = document.getElementById("msg")
+    let mensagem = input.value.trim()
+
+    if(!mensagem) return alert("Digite uma mensagem")
+
+    await apiFetch("/mural", "POST", {mensagem})
+
+    input.value = ""
+    carregarMural()
+}
+
+async function carregarMural(){
+    let dados = await apiFetch("/mural")
+
+    let div = document.getElementById("listaMural")
+    div.innerHTML = ""
+
+    dados.forEach(m=>{
+        let item = document.createElement("div")
+        item.className = "item"
+
+        item.innerHTML = `
+            ${m[1]} (${m[2]})
+            <button class="delete">Excluir</button>
+        `
+
+        item.querySelector("button").onclick = ()=> deletar(m[0])
+
+        div.appendChild(item)
+    })
+}
+
+async function deletar(id){
+    await apiFetch("/mural/deletar", "POST", {id})
+    carregarMural()
+}
+
+// ----------- PAGAMENTO ----------- //
+async function salvarValor(){
+    let input = document.getElementById("valor")
+    let valor = input.value.trim()
+
+    if(!valor) return alert("Digite um valor")
+
+    await apiFetch("/pagamento", "POST", {valor})
+
+    input.value = ""
+    carregarValor()
+}
+
+async function carregarValor(){
+    let data = await apiFetch("/pagamento")
+
+    document.getElementById("valorAtual").innerText =
+        "Valor atual: R$ " + data.valor
+}
+
+// ----------- RESERVAS ----------- //
+async function listarReservas(){
+    let dados = await apiFetch("/reservas")
+
+    let div = document.getElementById("listaReservas")
+    div.innerHTML = ""
+
+    dados.forEach(r=>{
+        let cor = "#facc15"
+
+        if(r[5] === "aprovado") cor = "#22c55e"
+        if(r[5] === "recusado") cor = "#ef4444"
+
+        let item = document.createElement("div")
+        item.className = "item"
+
+        item.innerHTML = `
+            🏢 ${r[2]} <br>
+            📅 ${r[3]} <br>
+            ⏰ ${r[4]} <br>
+
+            <strong style="color:${cor}">
+            Status: ${r[5]}
+            </strong><br>
+
+            <button class="aprovar">✔ Aprovar</button>
+            <button class="delete">❌ Recusar</button>
+        `
+
+        item.querySelector(".aprovar").onclick = ()=> aprovar(r[0])
+        item.querySelector(".delete").onclick = ()=> recusar(r[0])
+
+        div.appendChild(item)
+    })
+}
+
+async function aprovar(id){
+    await apiFetch("/reservas/aprovar", "POST", {id})
+    listarReservas()
+}
+
+async function recusar(id){
+    await apiFetch("/reservas/recusar", "POST", {id})
+    listarReservas()
+}
+
+// AUTO LOAD
+carregarMural()
+carregarValor()
+listarReservas()
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#0f172a;
+color:white;
+padding:30px;
+}
+
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:30px;
+}
+
+.logout{
+background:#ef4444;
+border:none;
+padding:10px;
+border-radius:6px;
+color:white;
+cursor:pointer;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+}
+
+.card{
+background:#1e293b;
+padding:20px;
+border-radius:10px;
+}
+
+.card button{
+width:100%;
+margin-top:10px;
+padding:10px;
+border:none;
+border-radius:6px;
+background:#3b82f6;
+color:white;
+cursor:pointer;
+}
+
+.card button:hover{
+background:#2563eb;
+}
+
+.mural-item{
+background:#0f172a;
+padding:10px;
+border-radius:6px;
+margin-top:10px;
+}
+
+#saqBtn{
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+background:#22c55e;
+color:white;
+padding:15px 25px;
+border-radius:50px;
+font-weight:bold;
+text-decoration:none;
+box-shadow:0 0 15px #22c55e;
+transition:0.3s;
+}
+
+#saqBtn:hover{
+background:#16a34a;
+transform:translateX(-50%) scale(1.05);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+<h1>🏢 Condomínio</h1>
+<button onclick="perfil()">Perfil</button>
+</header>
+
+<div class="cards">
+
+<div class="card">
+<h3>💰 Pagamento</h3>
+<p>Taxa mensal</p>
+<h2 id="valorPagamento">R$0</h2>
+<button onclick="pagar()">Pagar</button>
+</div>
+
+<div class="card">
+<h3>🎉 Reserva</h3>
+
+<input type="date" id="dataReserva">
+
+<select id="tipoReserva">
+<option value="">Selecione o local</option>
+<option value="Salao">🏢 Salão de festa</option>
+<option value="Academia">🏋️ Academia</option>
+<option value="Piscina">🏊 Piscina</option>
+</select>
+
+<select id="horaReserva">
+<option value="">Selecione horário</option>
+<option>08:00 - 12:00</option>
+<option>12:00 - 16:00</option>
+<option>16:00 - 20:00</option>
+<option>20:00 - 00:00</option>
+</select>
+
+<button onclick="reservar()">Reservar</button>
+</div>
+
+<div class="card">
+<h3>📢 Avisos</h3>
+<div id="mural"></div>
+</div>
+<div class="card">
+<h3>📅 Minhas Reservas</h3>
+<div id="listaReservas"></div>
+</div>
+
+<div class="card" id="admin" style="display:none">
+<h3>⚙ Síndico</h3>
+<button onclick="alert('Configurações')">Configurar</button>
+</div>
+
+</div>
+
+<script>
+
+const API = "http://127.0.0.1:8000"
+
+// ----------- FETCH PADRÃO ----------- //
+async function apiFetch(url, method="GET", body=null){
+
+    let token = localStorage.getItem("token")
+
+    try{
+
+        const res = await fetch(API + url, {
+            method,
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: body ? JSON.stringify(body) : null
+        })
+
+        return await res.json()
+
+    }catch(e){
+
+        alert("Erro ao conectar com servidor")
+        console.error(e)
+
+    }
+}
+// ----------- TIPO USUÁRIO ----------- //
+let tipo = localStorage.getItem("tipo")
+let usuario = JSON.parse(localStorage.getItem("usuario"))
+
+if(tipo === "sindico"){
+    document.getElementById("admin").style.display="block"
+}
+
+// ---------------- PAGAMENTO ----------------
+async function carregarPagamento(){
+
+    let dados = await apiFetch("/pagamento")
+    if(!dados) return
+
+    let valorBase = Number(dados.valor)
+
+    let hoje = new Date()
+    let dia = hoje.getDate()
+
+    let valorFinal = valorBase
+    let mensagem = ""
+
+    if(dia > 10){
+        let diasAtraso = dia - 10
+        let multa = valorBase * (0.05 * diasAtraso)
+
+        valorFinal += multa
+        mensagem = `⚠ ${diasAtraso} dia(s) de atraso (+R$ ${multa.toFixed(2)})`
+    }
+
+    window.valorAtual = valorFinal
+
+    let el = document.getElementById("valorPagamento")
+    el.innerText = "R$ " + valorFinal.toFixed(2)
+
+    if(mensagem){
+        let aviso = document.createElement("small")
+        aviso.style.color = "#facc15"
+        aviso.innerText = mensagem
+
+        el.appendChild(document.createElement("br"))
+        el.appendChild(aviso)
+    }
+}
+
+// ---------------- MURAL ----------------
+async function carregarMural(){
+
+    let dados = await apiFetch("/mural")
+    if(!dados) return
+
+    let div = document.getElementById("mural")
+    div.innerHTML = ""
+
+    dados.forEach(m=>{
+        let item = document.createElement("div")
+        item.className = "mural-item"
+
+        item.innerHTML = `
+            ${m[1]}<br>
+            <small>${m[2]}</small>
+        `
+
+        div.appendChild(item)
+    })
+}
+
+// ---------------- PAGAMENTO PIX ----------------
+function pagar(){
+
+    let valor = window.valorAtual || 0
+
+    document.getElementById("pixValor").innerText =
+        "R$ " + valor.toFixed(2)
+
+    document.getElementById("pixModal").style.display = "flex"
+}
+
+function fecharPix(){
+    document.getElementById("pixModal").style.display = "none"
+}
+
+async function copiarPix(){
+
+    let chave = document.getElementById("chavePix").value
+
+    try{
+        await navigator.clipboard.writeText(chave)
+        alert("Chave PIX copiada!")
+    }catch{
+        alert("Erro ao copiar")
+    }
+}
+
+function confirmarPagamento(){
+    alert("Pagamento enviado! Aguarde confirmação do síndico.")
+    fecharPix()
+}
+
+// ---------------- PERFIL ----------------
+function perfil(){
+    window.location.href="perfil.html"
+}
+
+// ---------------- RESERVA ----------------
+async function reservar(){
+
+    let tipo = document.getElementById("tipoReserva").value
+    let data = document.getElementById("dataReserva").value
+    let hora = document.getElementById("horaReserva").value
+
+if(!tipo || !data || !hora){
+    return alert("Preencha todos os campos!")
+}
+
+    if(!data || !hora){
+        return alert("Preencha data e horário!")
+    }
+
+    let hoje = new Date()
+    hoje.setHours(0,0,0,0)
+
+    let partes = data.split("-")
+    let dataSelecionada = new Date(partes[0], partes[1] - 1, partes[2])
+
+    if(dataSelecionada < hoje){
+        return alert("Não é permitido reservar datas passadas!")
+    }
+
+   let res = await apiFetch("/reservas", "POST", {
+    nome: usuario.nome,
+    tipo,
+    data,
+    hora
+})
+    if(res?.status === "erro"){
+        return alert(res.mensagem || "Erro ao reservar")
+    }
+
+    alert("Reserva enviada!")
+}
+
+async function carregarReservas(){
+
+    let reservas = await apiFetch("/reservas")
+
+    let div = document.getElementById("listaReservas")
+    div.innerHTML = ""
+
+    reservas
+    .filter(r => r[1] === usuario.nome)
+    .forEach(r => {
+
+        let statusCor = {
+            "pendente": "orange",
+            "aprovado": "lime",
+            "recusado": "red"
+        }
+
+        let status = r[5] // posição no banco
+
+        div.innerHTML += `
+            <div style="background:#1e293b; padding:10px; margin:10px 0; border-radius:8px;">
+                <p><b>Local:</b> ${r[2]}</p>
+                <p><b>Data:</b> ${r[3]}</p>
+                <p><b>Hora:</b> ${r[4]}</p>
+                <p style="color:${statusCor[status]}">
+                    <b>Status:</b> ${status}
+                </p>
+            </div>
+        `
+    })
+}
+// ---------------- INIT ----------------
+carregarPagamento()
+carregarMural()
+carregarReservas()
+document.getElementById("dataReserva").min = new Date().toISOString().split("T")[0]
+
+</script>
+
+<div id="pixModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000000cc; justify-content:center; align-items:center;">
+
+<div style="background:#1e293b; padding:30px; border-radius:10px; width:300px; text-align:center;">
+
+<h2>Pagamento via PIX</h2>
+
+<p>Valor:</p>
+<h3 id="pixValor">R$0</h3>
+
+<p>Chave PIX:</p>
+<input id="chavePix" value="condominio@pix.com" readonly style="width:100%; padding:8px; border-radius:6px; border:none;">
+
+<button onclick="copiarPix()">Copiar chave</button>
+
+<button onclick="confirmarPagamento()">Já paguei</button>
+
+<button onclick="fecharPix()" style="background:#ef4444;">Cancelar</button>
+
+</div>
+</div>
+
+
+<a href="https://wa.me/5581983621972" target="_blank" id="saqBtn">
+💬 SAQ
+</a>
+</body>
+</html>

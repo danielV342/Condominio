@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+
+<style>
+body{
+margin:0;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+font-family:Arial;
+background:linear-gradient(135deg,#0f172a,#1e293b);
+color:white;
+}
+
+.box{
+background:rgba(255,255,255,0.05);
+padding:40px;
+border-radius:15px;
+text-align:center;
+width:300px;
+}
+
+input{
+width:100%;
+padding:10px;
+margin-bottom:15px;
+border:none;
+border-radius:6px;
+background:#1e293b;
+color:white;
+}
+
+button{
+width:100%;
+padding:10px;
+border:none;
+border-radius:6px;
+background:#3b82f6;
+color:white;
+cursor:pointer;
+margin-top:5px;
+}
+
+button:hover{
+background:#2563eb;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>🏢 Login</h2>
+
+<input id="user" placeholder="Usuário">
+<input id="pass" type="password" placeholder="Senha">
+
+<button onclick="login()">Entrar</button>
+
+<button onclick="irCadastro()" style="background:#22c55e;">
+Cadastrar
+</button>
+
+</div>
+
+<script>
+
+const API = "http://127.0.0.1:8000"
+
+// ----------- FETCH PADRÃO ----------- //
+async function apiFetch(url, method="GET", body=null){
+    try{
+        const res = await fetch(API + url, {
+            method,
+            headers: {"Content-Type":"application/json"},
+            body: body ? JSON.stringify(body) : null
+        })
+
+        return await res.json()
+    }catch(e){
+        alert("Erro ao conectar com servidor")
+        console.error(e)
+    }
+}
+
+// ----------- IR CADASTRO ----------- //
+function irCadastro(){
+    window.location.href = "cadastro.html"
+}
+
+// ----------- MOSTRAR SENHA ----------- //
+function toggleSenha(){
+    let input = document.getElementById("pass")
+    input.type = input.type === "password" ? "text" : "password"
+}
+
+// ----------- LOGIN ----------- //
+async function login(){
+
+    let cpf = document.getElementById("user").value.trim()
+    let senha = document.getElementById("pass").value.trim()
+
+    if(!cpf || !senha){
+        return alert("Preencha todos os campos!")
+    }
+
+    let data = await apiFetch("/login", "POST", {
+        cpf,
+        senha
+    })
+
+    if(!data) return
+
+    if(data.status === "erro"){
+        alert("CPF ou senha inválidos")
+        return
+    }
+
+    // SALVA USUÁRIO
+    localStorage.setItem("tipo", data.tipo)
+    localStorage.setItem("usuario", JSON.stringify({
+        nome: data.nome,
+        cpf: data.cpf
+    }))
+
+    // FUTURO: TOKEN JWT
+    if(data.token){
+        localStorage.setItem("token", data.token)
+    }
+
+    console.log(data)
+
+const tipo = data.tipo?.trim().toLowerCase()
+
+console.log(tipo)
+
+if(tipo === "sindico"){
+    alert("INDO PARA ADMIN")
+    window.location.href = "admin.html"
+}else{
+    alert("INDO PARA DASHBOARD")
+    window.location.href = "dashboard.html"
+}
+}
+
+</script>
+
+</body>
+</html>
