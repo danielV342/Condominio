@@ -29,4 +29,4 @@ app.include_router(pagamentos.router)
 
 @app.get("/")
 def home():
-    return FileResponse("login.html")
+    return FileResponse("index.html")
