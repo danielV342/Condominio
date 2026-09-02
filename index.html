@@ -1,54 +1,12 @@
 <!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
+
+<html lang="pt-br"> <head> <meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Login</title>
 
-<style>
-body{
-margin:0;
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-font-family:Arial;
-background:linear-gradient(135deg,#0f172a,#1e293b);
-color:white;
-}
-
-.box{
-background:rgba(255,255,255,0.05);
-padding:40px;
-border-radius:15px;
-text-align:center;
-width:300px;
-}
-
-input{
-width:100%;
-padding:10px;
-margin-bottom:15px;
-border:none;
-border-radius:6px;
-background:#1e293b;
-color:white;
-}
-
-button{
-width:100%;
-padding:10px;
-border:none;
-border-radius:6px;
-background:#3b82f6;
-color:white;
-cursor:pointer;
-margin-top:5px;
-}
-
-button:hover{
-background:#2563eb;
-}
-</style>
+<style> *{ box-sizing: border-box; } body{ margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; font-family:Arial, sans-serif; background:linear-gradient( 135deg, #0f172a, #1e293b ); color:white; } /* ========================= CAIXA DE LOGIN ========================= */ .box{ background:rgba(255,255,255,0.05); padding:40px; border-radius:15px; text-align:center; width:100%; max-width:380px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); backdrop-filter:blur(10px); } .box h2{ margin-top:0; margin-bottom:30px; font-size:26px; } /* ========================= INPUTS ========================= */ input{ width:100%; padding:14px; margin-bottom:15px; border:none; border-radius:8px; background:#1e293b; color:white; font-size:16px; outline:none; transition:0.2s; } input::placeholder{ color:#94a3b8; } input:focus{ box-shadow:0 0 0 2px #3b82f6; } /* ========================= BOTÕES ========================= */ button{ width:100%; padding:14px; border:none; border-radius:8px; background:#3b82f6; color:white; cursor:pointer; margin-top:5px; font-size:16px; font-weight:bold; transition:0.2s; } button:hover{ background:#2563eb; } button:active{ transform:scale(0.98); } /* Botão cadastrar */ .btn-cadastro{ background:#22c55e; } .btn-cadastro:hover{ background:#16a34a; } /* ========================= CELULAR ========================= */ @media (max-width:480px){ body{ padding:15px; } .box{ padding:30px 22px; max-width:100%; border-radius:12px; } .box h2{ font-size:24px; margin-bottom:25px; } input{ padding:15px; font-size:16px; } button{ padding:15px; font-size:16px; } } /* ========================= CELULARES MUITO PEQUENOS ========================= */ @media (max-width:350px){ .box{ padding:25px 18px; } .box h2{ font-size:22px; } } </style>
 
 </head>
 
@@ -58,13 +16,29 @@ background:#2563eb;
 
 <h2>🏢 Login</h2>
 
-<input id="user" placeholder="Usuário">
-<input id="pass" type="password" placeholder="Senha">
+<input
+    id="user"
+    type="text"
+    placeholder="CPF"
+    autocomplete="username"
+>
 
-<button onclick="login()">Entrar</button>
+<input
+    id="pass"
+    type="password"
+    placeholder="Senha"
+    autocomplete="current-password"
+>
 
-<button onclick="irCadastro()" style="background:#22c55e;">
-Cadastrar
+<button onclick="login()">
+    Entrar
+</button>
+
+<button
+    onclick="irCadastro()"
+    class="btn-cadastro"
+>
+    Cadastrar
 </button>
 
 </div>
