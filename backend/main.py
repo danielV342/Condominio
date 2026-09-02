@@ -30,3 +30,7 @@ app.include_router(pagamentos.router)
 @app.get("/")
 def home():
     return FileResponse("index.html")
+
+@app.get("/cadastro.html")
+def cadastro():
+    return FileResponse("cadastro.html")
