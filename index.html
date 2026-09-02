@@ -34,12 +34,6 @@
     Entrar
 </button>
 
-<button
-    onclick="irCadastro()"
-    class="btn-cadastro"
->
-    Cadastrar
-</button>
 
 </div>
 
@@ -61,11 +55,6 @@ async function apiFetch(url, method="GET", body=null){
         alert("Erro ao conectar com servidor")
         console.error(e)
     }
-}
-
-// ----------- IR CADASTRO ----------- //
-function irCadastro(){
-    window.location.href = "cadastro.html"
 }
 
 // ----------- MOSTRAR SENHA ----------- //
