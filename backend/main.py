@@ -34,3 +34,7 @@ def home():
 @app.get("/cadastro.html")
 def cadastro():
     return FileResponse("cadastro.html")
+
+@app.get("/dashboard.html")
+def dashboard():
+    return FileResponse("dashboard.html")
