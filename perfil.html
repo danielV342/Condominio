@@ -60,7 +60,7 @@ let user = JSON.parse(localStorage.getItem("usuario"))
 
 if(!user){
     alert("Usuário não logado!")
-    window.location.href = "login.html"
+    window.location.href = "/"
 }
 
 // ----------- FORMATAR DATA ----------- //
@@ -78,12 +78,18 @@ document.getElementById("nasc").innerText = "Nascimento: " + formatarData(user.n
 
 // ----------- AÇÕES ----------- //
 function voltar(){
-    window.location.href = "dashboard.html"
+    if(tipo === "sindico"){
+        alert("INDO PARA ADMIN")
+        window.location.href = "admin.html"
+    }else{
+        alert("INDO PARA DASHBOARD")
+        window.location.href = "dashboard.html"
+    }
 }
 
 function logout(){
     localStorage.clear()
-    window.location.href = "login.html"
+    window.location.href = "/"
 }
 
 </script>

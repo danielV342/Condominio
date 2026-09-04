@@ -38,3 +38,11 @@ def cadastro():
 @app.get("/dashboard.html")
 def dashboard():
     return FileResponse("dashboard.html")
+
+@app.get("/admin.html")
+def admin():
+    return FileResponse("admin.html")
+
+@app.get("/perfil.html")
+def perfil():
+    return FileResponse("perfil.html")

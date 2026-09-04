@@ -1,317 +1,785 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel do Síndico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-body{
-margin:0;
-font-family:Arial;
-background:linear-gradient(135deg,#0f172a,#1e293b);
-color:white;
+:root {
+    --bg-main: #07090e;
+    --bg-card: rgba(15, 23, 42, 0.75);
+    --bg-card-border: rgba(255, 255, 255, 0.08);
+    --bg-input: #0f172a;
+    --accent-blue: #38bdf8;
+    --accent-blue-glow: rgba(56, 189, 248, 0.25);
+    --primary: #2563eb;
+    --primary-hover: #3b82f6;
+    --danger: #ef4444;
+    --danger-hover: #dc2626;
+    --success: #10b981;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
 }
 
-/* TOPO */
-.header{
-background:#020617;
-padding:15px;
-text-align:center;
-font-size:20px;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-/* LAYOUT HORIZONTAL */
-.main{
-display:flex;
-height:calc(100vh - 60px);
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg-main);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.12) 0px, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-/* MENU LATERAL */
-.sidebar{
-width:200px;
-background:#020617;
-padding:20px;
-display:flex;
-flex-direction:column;
-gap:10px;
+/* =========================
+   TOPO
+========================= */
+
+.header {
+    background: rgba(7, 9, 14, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--bg-card-border);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
-.sidebar button{
-background:#1e293b;
-border:none;
-padding:10px;
-color:white;
-cursor:pointer;
-border-radius:6px;
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
 }
 
-.sidebar button:hover{
-background:#334155;
+.header-brand svg {
+    width: 24px;
+    height: 24px;
+    color: var(--accent-blue);
 }
 
-/* CONTEÚDO */
-.content{
-flex:1;
-padding:20px;
-overflow-y:auto;
+.header-badge {
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    color: var(--accent-blue);
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
 }
 
-/* CARDS */
-.card{
-background:rgba(255,255,255,0.05);
-padding:20px;
-border-radius:15px;
-margin-bottom:20px;
+/* =========================
+   LAYOUT PRINCIPAL
+========================= */
+
+.main {
+    display: flex;
+    flex: 1;
 }
 
-input{
-width:100%;
-padding:10px;
-margin-top:10px;
-border:none;
-border-radius:6px;
-background:#1e293b;
-color:white;
+/* =========================
+   SIDEBAR REFORMULADA
+========================= */
+
+.sidebar {
+    width: 260px;
+    background: rgba(11, 15, 25, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-right: 1px solid var(--bg-card-border);
+    padding: 24px 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
 }
 
-button{
-margin-top:10px;
-padding:10px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-background:#3b82f6;
-color:white;
+.sidebar-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
-button:hover{
-background:#2563eb;
+.sidebar-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #64748b;
+    padding: 0 12px 8px 12px;
+    text-transform: uppercase;
 }
 
-.delete{
-background:#ef4444;
+.sidebar .nav-btn {
+    position: relative;
+    width: 100%;
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 11px 14px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    text-align: left;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    outline: none;
 }
 
-.aprovar{
-background:#22c55e;
+.sidebar .nav-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: #64748b;
+    transition: all 0.2s ease;
 }
 
-.item{
-background:#1e293b;
-padding:10px;
-border-radius:8px;
-margin-top:10px;
+.sidebar .nav-btn:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-primary);
+}
+
+.sidebar .nav-btn:hover .nav-icon {
+    color: var(--text-primary);
+}
+
+.sidebar .nav-btn.active {
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0.12) 0%, rgba(56, 189, 248, 0.02) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    color: var(--accent-blue);
+    font-weight: 600;
+}
+
+.sidebar .nav-btn.active .nav-icon {
+    color: var(--accent-blue);
+}
+
+.sidebar .nav-btn.active::before {
+    content: '';
+    position: absolute;
+    left: -14px;
+    top: 20%;
+    height: 60%;
+    width: 3px;
+    background: var(--accent-blue);
+    border-radius: 0 4px 4px 0;
+}
+
+.sidebar-footer {
+    border-top: 1px solid var(--bg-card-border);
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.avatar {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2563eb, #38bdf8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    font-size: 14px;
+}
+
+.status-dot {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 10px;
+    height: 10px;
+    background: #10b981;
+    border: 2px solid #07090e;
+    border-radius: 50%;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.user-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.user-role {
+    font-size: 11px;
+    color: #64748b;
+}
+
+.sidebar .logout-btn {
+    color: #f87171;
+}
+
+.sidebar .logout-btn .nav-icon {
+    color: #f87171;
+}
+
+.sidebar .logout-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.sidebar .logout-btn:hover .nav-icon {
+    color: #ef4444;
+}
+
+/* =========================
+   CONTEÚDO
+========================= */
+
+.content {
+    flex: 1;
+    padding: 32px;
+    overflow-y: auto;
+    min-width: 0;
+}
+
+.card {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--bg-card-border);
+    padding: 28px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.card h3 {
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.form-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid var(--bg-card-border);
+    border-radius: 10px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+input:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px var(--accent-blue-glow);
+}
+
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: var(--primary);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+button:hover {
+    background: var(--primary-hover);
+}
+
+.delete {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+.delete:hover {
+    background: var(--danger);
+    color: white;
+}
+
+.aprovar {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #34d399;
+}
+
+.aprovar:hover {
+    background: var(--success);
+    color: white;
+}
+
+.item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.item {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid var(--bg-card-border);
+    padding: 16px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.item-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.badge-pendente {
+    background: rgba(250, 204, 21, 0.1);
+    color: #facc15;
+    border: 1px solid rgba(250, 204, 21, 0.2);
+}
+
+.badge-aprovado {
+    background: rgba(16, 185, 129, 0.1);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-recusado {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.val-box {
+    background: rgba(2, 6, 23, 0.5);
+    border: 1px solid var(--bg-card-border);
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.val-box span {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.val-box strong {
+    font-size: 20px;
+    color: var(--accent-blue);
+}
+
+/* =========================
+   RESPONSIVIDADE (MOBILE & TABLET)
+========================= */
+
+@media (max-width: 768px) {
+    .main {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        padding: 10px 14px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        border-right: none;
+        border-bottom: 1px solid var(--bg-card-border);
+        position: sticky;
+        top: 61px;
+        z-index: 90;
+    }
+
+    .sidebar-section {
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .sidebar-label,
+    .user-profile {
+        display: none !important;
+    }
+
+    .sidebar-footer {
+        border-top: none;
+        padding-top: 0;
+        margin: 0;
+    }
+
+    .sidebar .nav-btn {
+        width: auto;
+        justify-content: center;
+        padding: 10px 12px;
+    }
+
+    .sidebar .nav-btn span {
+        display: none;
+    }
+
+    .sidebar .nav-btn.active::before {
+        display: none;
+    }
+
+    .content {
+        padding: 16px;
+    }
+
+    .item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .item-actions {
+        width: 100%;
+    }
+
+    .item-actions button {
+        flex: 1;
+    }
 }
 </style>
-
 </head>
 
 <body>
 
 <div class="header">
-🏢 Painel do Síndico
+    <div class="header-brand">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h5m0 0v-5a2 2 0 012-2h2a2 2 0 012 2v5"></path></svg>
+        Painel do Síndico
+    </div>
+    <div class="header-badge">Síndico</div>
 </div>
 
 <div class="main">
 
-<!-- MENU -->
-<div class="sidebar">
-<button onclick="mostrar('mural')">📢 Mural</button>
-<button onclick="mostrar('pagamento')">💰 Pagamento</button>
-<button onclick="mostrar('reservas')">📅 Reservas</button>
-<button onclick="logout()">🚪 Sair</button>
-</div>
+    <!-- SIDEBAR REFORMULADA -->
+    <aside class="sidebar">
+        <div class="sidebar-section">
+            <span class="sidebar-label">MENU PRINCIPAL</span>
+            
+            <button id="btn-mural" class="nav-btn active" onclick="mostrar('mural')">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6m-6 4h4"></path>
+                </svg>
+                <span>Mural de Avisos</span>
+            </button>
 
-<!-- CONTEÚDO -->
-<div class="content">
+            <button id="btn-pagamento" class="nav-btn" onclick="mostrar('pagamento')">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>Pagamentos</span>
+            </button>
 
-<!-- MURAL -->
-<div id="mural" class="card">
-<h3>📢 Mural</h3>
+            <button id="btn-reservas" class="nav-btn" onclick="mostrar('reservas')">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span>Reservas</span>
+            </button>
+        </div>
 
-<input id="msg" placeholder="Nova mensagem">
-<button onclick="postar()">Postar</button>
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="avatar">
+                    <span>S</span>
+                    <span class="status-dot"></span>
+                </div>
+                <div class="user-info">
+                    <span class="user-name">Síndico</span>
+                    <span class="user-role">Administrador</span>
+                </div>
+            </div>
 
-<div id="listaMural"></div>
-</div>
+            <button class="nav-btn logout-btn" onclick="logout()" title="Sair da conta">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+                <span>Sair</span>
+            </button>
+        </div>
+    </aside>
 
-<!-- PAGAMENTO -->
-<div id="pagamento" class="card" style="display:none;">
-<h3>💰 Pagamento</h3>
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="content">
 
-<p id="valorAtual"></p>
+        <!-- MURAL -->
+        <div id="mural" class="card">
+            <h3>📢 Mural de Avisos</h3>
 
-<input id="valor" placeholder="Novo valor">
-<button onclick="salvarValor()">Atualizar</button>
-</div>
+            <div class="form-group">
+                <input id="msg" type="text" placeholder="Escreva uma nova mensagem...">
+                <button onclick="postar()">Publicar</button>
+            </div>
 
-<!-- RESERVAS -->
-<div id="reservas" class="card" style="display:none;">
-<h3>📅 Reservas</h3>
+            <div id="listaMural" class="item-list"></div>
+        </div>
 
-<button onclick="listarReservas()">Carregar reservas</button>
+        <!-- PAGAMENTO -->
+        <div id="pagamento" class="card" style="display:none;">
+            <h3>💰 Configurar Pagamento</h3>
 
-<div id="listaReservas"></div>
-</div>
+            <div class="val-box">
+                <span>Valor do Condomínio:</span>
+                <strong id="valorAtual">R$ 0,00</strong>
+            </div>
 
-</div>
+            <div class="form-group">
+                <input id="valor" type="number" inputmode="decimal" step="0.01" placeholder="Novo valor (ex: 450.00)">
+                <button onclick="salvarValor()">Atualizar</button>
+            </div>
+        </div>
+
+        <!-- RESERVAS -->
+        <div id="reservas" class="card" style="display:none;">
+            <h3>📅 Solicitações de Reserva</h3>
+
+            <div style="margin-bottom: 20px;">
+                <button onclick="listarReservas()">
+                    <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Atualizar Lista
+                </button>
+            </div>
+
+            <div id="listaReservas" class="item-list"></div>
+        </div>
+
+    </div>
 
 </div>
 
 <script>
-
-const API = "http://127.0.0.1:8000"
+const API = "http://127.0.0.1:8000";
 
 // ----------- FUNÇÃO BASE FETCH ----------- //
 async function apiFetch(url, method="GET", body=null){
+    let token = localStorage.getItem("token");
 
-    let token = localStorage.getItem("token")
-
-    try{
-
+    try {
         const res = await fetch(API + url, {
             method,
-            headers:{
-                "Content-Type":"application/json",
+            headers: {
+                "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
             },
             body: body ? JSON.stringify(body) : null
-        })
-
-        return await res.json()
-
-    }catch(e){
-
-        alert("Erro ao conectar com servidor")
-        console.error(e)
-
+        });
+        return await res.json();
+    } catch(e) {
+        alert("Erro ao conectar com servidor");
+        console.error(e);
     }
 }
 
 // ----------- NAVEGAÇÃO ----------- //
 function mostrar(secao){
-    ["mural","pagamento","reservas"].forEach(id=>{
-        document.getElementById(id).style.display = "none"
-    })
-    document.getElementById(secao).style.display = "block"
+    ["mural","pagamento","reservas"].forEach(id => {
+        document.getElementById(id).style.display = "none";
+        document.getElementById("btn-" + id).classList.remove("active");
+    });
+    document.getElementById(secao).style.display = "block";
+    document.getElementById("btn-" + secao).classList.add("active");
 }
 
 // ----------- LOGOUT ----------- //
 function logout(){
-    localStorage.clear()
-    window.location.href = "login.html"
+    localStorage.clear();
+    window.location.href = "/";
 }
 
 // ----------- MURAL ----------- //
 async function postar(){
-    let input = document.getElementById("msg")
-    let mensagem = input.value.trim()
+    let input = document.getElementById("msg");
+    let mensagem = input.value.trim();
 
-    if(!mensagem) return alert("Digite uma mensagem")
+    if(!mensagem) return alert("Digite uma mensagem");
 
-    await apiFetch("/mural", "POST", {mensagem})
-
-    input.value = ""
-    carregarMural()
+    await apiFetch("/mural", "POST", {mensagem});
+    input.value = "";
+    carregarMural();
 }
 
 async function carregarMural(){
-    let dados = await apiFetch("/mural")
+    let dados = await apiFetch("/mural");
+    let div = document.getElementById("listaMural");
+    div.innerHTML = "";
 
-    let div = document.getElementById("listaMural")
-    div.innerHTML = ""
+    if (!dados || dados.length === 0) {
+        div.innerHTML = '<p style="color:var(--text-secondary); font-size:14px;">Nenhuma mensagem cadastrada.</p>';
+        return;
+    }
 
-    dados.forEach(m=>{
-        let item = document.createElement("div")
-        item.className = "item"
+    dados.forEach(m => {
+        let item = document.createElement("div");
+        item.className = "item";
 
         item.innerHTML = `
-            ${m[1]} (${m[2]})
-            <button class="delete">Excluir</button>
-        `
+            <div class="item-info">
+                <span>${m[1]}</span>
+                <small style="color:var(--text-secondary); font-size:12px;">${m[2]}</small>
+            </div>
+            <div class="item-actions">
+                <button class="delete">Excluir</button>
+            </div>
+        `;
 
-        item.querySelector("button").onclick = ()=> deletar(m[0])
-
-        div.appendChild(item)
-    })
+        item.querySelector("button").onclick = () => deletar(m[0]);
+        div.appendChild(item);
+    });
 }
 
 async function deletar(id){
-    await apiFetch("/mural/deletar", "POST", {id})
-    carregarMural()
+    await apiFetch("/mural/deletar", "POST", {id});
+    carregarMural();
 }
 
 // ----------- PAGAMENTO ----------- //
 async function salvarValor(){
-    let input = document.getElementById("valor")
-    let valor = input.value.trim()
+    let input = document.getElementById("valor");
+    let valor = input.value.trim();
 
-    if(!valor) return alert("Digite um valor")
+    if(!valor) return alert("Digite um valor");
 
-    await apiFetch("/pagamento", "POST", {valor})
-
-    input.value = ""
-    carregarValor()
+    await apiFetch("/pagamento", "POST", {valor});
+    input.value = "";
+    carregarValor();
 }
 
 async function carregarValor(){
-    let data = await apiFetch("/pagamento")
-
-    document.getElementById("valorAtual").innerText =
-        "Valor atual: R$ " + data.valor
+    let data = await apiFetch("/pagamento");
+    if(data && data.valor !== undefined) {
+        document.getElementById("valorAtual").innerText = "R$ " + Number(data.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2});
+    }
 }
 
 // ----------- RESERVAS ----------- //
 async function listarReservas(){
-    let dados = await apiFetch("/reservas")
+    let dados = await apiFetch("/reservas");
+    let div = document.getElementById("listaReservas");
+    div.innerHTML = "";
 
-    let div = document.getElementById("listaReservas")
-    div.innerHTML = ""
+    if (!dados || dados.length === 0) {
+        div.innerHTML = '<p style="color:var(--text-secondary); font-size:14px;">Nenhuma reserva encontrada.</p>';
+        return;
+    }
 
-    dados.forEach(r=>{
-        let cor = "#facc15"
+    dados.forEach(r => {
+        let badgeClass = "badge-pendente";
+        if(r[5] === "aprovado") badgeClass = "badge-aprovado";
+        if(r[5] === "recusado") badgeClass = "badge-recusado";
 
-        if(r[5] === "aprovado") cor = "#22c55e"
-        if(r[5] === "recusado") cor = "#ef4444"
-
-        let item = document.createElement("div")
-        item.className = "item"
+        let item = document.createElement("div");
+        item.className = "item";
 
         item.innerHTML = `
-            🏢 ${r[2]} <br>
-            📅 ${r[3]} <br>
-            ⏰ ${r[4]} <br>
+            <div class="item-info">
+                <strong>🏢 ${r[2]}</strong>
+                <span style="color:var(--text-secondary); font-size:13px;">📅 ${r[3]} &nbsp;|&nbsp; ⏰ ${r[4]}</span>
+                <div style="margin-top:4px;">
+                    <span class="badge ${badgeClass}">${r[5].toUpperCase()}</span>
+                </div>
+            </div>
+            <div class="item-actions">
+                <button class="aprovar">✔ Aprovar</button>
+                <button class="delete">❌ Recusar</button>
+            </div>
+        `;
 
-            <strong style="color:${cor}">
-            Status: ${r[5]}
-            </strong><br>
+        item.querySelector(".aprovar").onclick = () => aprovar(r[0]);
+        item.querySelector(".delete").onclick = () => recusar(r[0]);
 
-            <button class="aprovar">✔ Aprovar</button>
-            <button class="delete">❌ Recusar</button>
-        `
-
-        item.querySelector(".aprovar").onclick = ()=> aprovar(r[0])
-        item.querySelector(".delete").onclick = ()=> recusar(r[0])
-
-        div.appendChild(item)
-    })
+        div.appendChild(item);
+    });
 }
 
 async function aprovar(id){
-    await apiFetch("/reservas/aprovar", "POST", {id})
-    listarReservas()
+    await apiFetch("/reservas/aprovar", "POST", {id});
+    listarReservas();
 }
 
 async function recusar(id){
-    await apiFetch("/reservas/recusar", "POST", {id})
-    listarReservas()
+    await apiFetch("/reservas/recusar", "POST", {id});
+    listarReservas();
 }
 
 // AUTO LOAD
-carregarMural()
-carregarValor()
-listarReservas()
-
+carregarMural();
+carregarValor();
+listarReservas();
 </script>
 
 </body>
