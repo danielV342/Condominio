@@ -53,7 +53,7 @@ def login(dados: LoginSchema):
 
     senha_ok = verificar_senha(
         dados.senha,
-        usuario.senha
+        usuario.senha_hash
     )
 
     if not senha_ok:
