@@ -1,12 +1,22 @@
+import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = "sqlite:///./condominio.db"
+
+DATABASE_URL = (
+    f"mariadb+mariadbconnector://"
+    f"{os.getenv('DB_USER', 'root')}:"
+    f"{os.getenv('DB_PASSWORD', '')}@"
+    f"{os.getenv('DB_HOST', 'localhost')}:"
+    f"{os.getenv('DB_PORT', '3307')}/"
+    f"{os.getenv('DB_NAME', 'meucondominio')}"
+)
 
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False}
+    pool_pre_ping=True
 )
 
 SessionLocal = sessionmaker(
@@ -15,14 +25,13 @@ SessionLocal = sessionmaker(
     bind=engine
 )
 
-def get_db():
+Base = declarative_base()
 
+
+def get_db():
     db = SessionLocal()
 
     try:
         yield db
-
     finally:
         db.close()
-
-Base = declarative_base()
