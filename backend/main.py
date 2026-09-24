@@ -6,6 +6,10 @@ from backend.routes import usuarios
 from backend.routes import mural
 from backend.routes import reservas
 from backend.routes import pagamentos
+from backend import models
+from backend.database import Base, engine
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API Condomínio")
 
