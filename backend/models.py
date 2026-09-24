@@ -13,9 +13,9 @@ class Usuario(Base):
     senha_hash = Column(String(255), nullable=False)
 
     tipo = Column(
-        Enum("MORADOR", "SINDICO"),
-        nullable=False
-    )
+    Enum("MORADOR", "SINDICO", name="tipo_usuario"),
+    nullable=False
+)
 
     ativo = Column(Boolean, nullable=False, default=True)
 
