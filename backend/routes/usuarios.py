@@ -39,7 +39,7 @@ def cadastrar(usuario: UsuarioCreate):
 
     return {"status": "ok"}
 
-@router.post("/")
+@router.post("/login")
 def login(dados: LoginSchema):
 
     db: Session = SessionLocal()
