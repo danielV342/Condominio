@@ -1,52 +1,43 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
 
-from backend.routes import usuarios
-from backend.routes import mural
-from backend.routes import reservas
-from backend.routes import pagamentos
-from backend import models
-from backend.database import Base, engine
+from backend.database import Base, engine, SessionLocal
+from backend.models import Usuario
+from backend.auth import gerar_hash
+from datetime import date
+
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="API Condomínio")
+app = FastAPI()
 
 
-# CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+def criar_admin():
+    db = SessionLocal()
+
+    try:
+        admin = db.query(Usuario).filter(
+            Usuario.cpf == "00000000000"
+        ).first()
+
+        if not admin:
+            novo_admin = Usuario(
+                nome="Administrador",
+                cpf="00000000000",
+                nascimento=date(1990, 1, 1),
+                senha_hash=gerar_hash("admin123"),
+                tipo="SINDICO"
+            )
+
+            db.add(novo_admin)
+            db.commit()
+
+            print("Usuário administrador criado.")
+
+        else:
+            print("Usuário administrador já existe.")
+
+    finally:
+        db.close()
 
 
-# ROTAS
-app.include_router(usuarios.router)
-app.include_router(mural.router)
-app.include_router(reservas.router)
-app.include_router(pagamentos.router)
-
-
-@app.get("/")
-def home():
-    return FileResponse("index.html")
-
-@app.get("/cadastro.html")
-def cadastro():
-    return FileResponse("cadastro.html")
-
-@app.get("/dashboard.html")
-def dashboard():
-    return FileResponse("dashboard.html")
-
-@app.get("/admin.html")
-def admin():
-    return FileResponse("admin.html")
-
-@app.get("/perfil.html")
-def perfil():
-    return FileResponse("perfil.html")
+criar_admin()

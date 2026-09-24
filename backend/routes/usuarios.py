@@ -30,7 +30,7 @@ def cadastrar(usuario: UsuarioCreate):
         nome=usuario.nome,
         cpf=usuario.cpf,
         nascimento=usuario.nascimento,
-        senha=gerar_hash(usuario.senha),
+        senha_hash=gerar_hash(usuario.senha),
         tipo=usuario.tipo
     )
 

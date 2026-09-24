@@ -9,6 +9,7 @@ class Usuario(Base):
     id = Column(Integer, primary_key=True, index=True)
     nome = Column(String(150), nullable=False)
     cpf = Column(String(14), unique=True, nullable=False, index=True)
+    nascimento = Column(Date, nullable=False)
     senha_hash = Column(String(255), nullable=False)
 
     tipo = Column(
@@ -23,6 +24,8 @@ class Usuario(Base):
         nullable=False,
         server_default=func.current_timestamp()
     )
+
+
 
 
 class Mural(Base):
