@@ -30,7 +30,7 @@ def cadastrar(usuario: UsuarioCreate):
         nome=usuario.nome,
         cpf=usuario.cpf,
         nascimento=usuario.nascimento,
-        senha=gerar_hash(usuario.senha),
+        senha_hash=gerar_hash(usuario.senha),
         tipo=usuario.tipo
     )
 
@@ -39,7 +39,7 @@ def cadastrar(usuario: UsuarioCreate):
 
     return {"status": "ok"}
 
-@router.post("/login")
+@router.post("/")
 def login(dados: LoginSchema):
 
     db: Session = SessionLocal()
