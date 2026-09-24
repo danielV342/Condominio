@@ -4,6 +4,7 @@ from backend.database import Base, engine, SessionLocal
 from backend.models import Usuario
 from backend.auth import gerar_hash
 from backend.routes import usuarios
+from backend.routes import moradores
 
 from datetime import date
 
@@ -14,6 +15,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 app.include_router(usuarios.router)
+app.include_router(moradores.router)
 
 def criar_admin():
     db = SessionLocal()
