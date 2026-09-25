@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import date
 
 class UsuarioCreate(BaseModel):
     nome: str
@@ -19,5 +20,11 @@ class ReservaSchema(BaseModel):
     data: str
     hora: str
 
-class PagamentoSchema(BaseModel):
-    valor: str
+class PagamentoResponse(BaseModel):
+
+    id: int
+    descricao: str
+    valor: float
+    vencimento: date
+    status: str
+    data_pagamento: date | None

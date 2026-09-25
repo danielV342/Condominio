@@ -1,6 +1,7 @@
-from sqlalchemy import Boolean, Column, Date, DateTime, Enum, Integer, Numeric, String, Time
+from sqlalchemy import Boolean, Column, Date, DateTime, Enum, Integer, Numeric, String, Time, Float, ForeignKey
 from backend.database import Base
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 
 
 class Usuario(Base):
@@ -49,5 +50,40 @@ class Reserva(Base):
 class Pagamento(Base):
     __tablename__ = "pagamentos"
 
-    id = Column(Integer, primary_key=True)
-    valor = Column(Numeric(10, 2), nullable=False)
+    id = Column(Integer, primary_key=True, index=True)
+
+    usuario_id = Column(
+        Integer,
+        ForeignKey("usuarios.id"),
+        nullable=False
+    )
+
+    descricao = Column(
+        String,
+        nullable=False
+    )
+
+    valor = Column(
+        Float,
+        nullable=False
+    )
+
+    vencimento = Column(
+        Date,
+        nullable=False
+    )
+
+    status = Column(
+        String,
+        default="PENDENTE",
+        nullable=False
+    )
+
+    data_pagamento = Column(
+        Date,
+        nullable=True
+    )
+
+    usuario = relationship(
+        "Usuario"
+    )
