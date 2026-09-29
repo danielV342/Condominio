@@ -27,30 +27,14 @@ class Usuario(Base):
     )
 
 
-
-
-class Mural(Base):
-    __tablename__ = "mural"
-
-    id = Column(Integer, primary_key=True)
-    mensagem = Column(String(500), nullable=False)
-    data = Column(DateTime, nullable=False, server_default=func.current_timestamp())
-
-
-class Reserva(Base):
-    __tablename__ = "reservas"
-
-    id = Column(Integer, primary_key=True)
-    nome = Column(String(150), nullable=False)
-    data = Column(Date, nullable=False)
-    hora = Column(Time, nullable=False)
-    status = Column(String(20), nullable=False, default="pendente")
-
-
 class Pagamento(Base):
     __tablename__ = "pagamentos"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
 
     usuario_id = Column(
         Integer,
@@ -84,6 +68,21 @@ class Pagamento(Base):
         nullable=True
     )
 
-    usuario = relationship(
-        "Usuario"
-    )
+    usuario = relationship("Usuario")
+
+class Mural(Base):
+    __tablename__ = "mural"
+
+    id = Column(Integer, primary_key=True)
+    mensagem = Column(String(500), nullable=False)
+    data = Column(DateTime, nullable=False, server_default=func.current_timestamp())
+
+
+class Reserva(Base):
+    __tablename__ = "reservas"
+
+    id = Column(Integer, primary_key=True)
+    nome = Column(String(150), nullable=False)
+    data = Column(Date, nullable=False)
+    hora = Column(Time, nullable=False)
+    status = Column(String(20), nullable=False, default="pendente")
