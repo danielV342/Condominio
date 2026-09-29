@@ -4,7 +4,6 @@ from backend.models import Pagamento, Usuario
 
 router = APIRouter()
 
-
 @router.get("/financeiro/{cpf}")
 def listar_pagamentos(cpf: str):
 
@@ -41,4 +40,42 @@ def listar_pagamentos(cpf: str):
 
     finally:
 
+        db.close()
+
+@router.post("/financeiro")
+def criar_cobranca(data: dict):
+
+    db = SessionLocal()
+
+    try:
+
+        usuario = db.query(Usuario).filter(
+            Usuario.cpf == data["cpf"]
+        ).first()
+
+        if not usuario:
+            return {
+                "status": "erro",
+                "mensagem": "Morador não encontrado"
+            }
+
+        pagamento = Pagamento(
+            usuario_id=usuario.id,
+            descricao=data["descricao"],
+            valor=data["valor"],
+            vencimento=data["vencimento"],
+            status="PENDENTE"
+        )
+
+        db.add(pagamento)
+        db.commit()
+        db.refresh(pagamento)
+
+        return {
+            "status": "ok",
+            "mensagem": "Cobrança criada",
+            "id": pagamento.id
+        }
+
+    finally:
         db.close()
