@@ -1,171 +1,97 @@
 from fastapi import APIRouter
+from datetime import date
+
 from backend.database import SessionLocal
-from backend.models import Pagamento, Usuario
-from backend.schemas import PagamentoCreate
-from backend.models import CobrancaRecorrente
-from backend.schemas import CobrancaRecorrenteCreate
+from backend.models import (
+    Pagamento,
+    Usuario,
+    CobrancaRecorrente
+)
 
 router = APIRouter()
 
-@router.get("/financeiro/{cpf}")
-def listar_pagamentos(cpf: str):
+
+@router.get("/financeiro/dashboard")
+def dashboard_financeiro():
 
     db = SessionLocal()
 
     try:
-
-        usuario = db.query(Usuario).filter(
-            Usuario.cpf == cpf
-        ).first()
-
-        if not usuario:
-
-            return {
-                "status": "erro",
-                "mensagem": "Usuário não encontrado"
-            }
-
-        pagamentos = db.query(Pagamento).filter(
-            Pagamento.usuario_id == usuario.id
-        ).all()
-
-        return [
-            {
-                "id": pagamento.id,
-                "descricao": pagamento.descricao,
-                "valor": pagamento.valor,
-                "vencimento": pagamento.vencimento,
-                "status": pagamento.status,
-                "data_pagamento": pagamento.data_pagamento
-            }
-            for pagamento in pagamentos
-        ]
-
-    finally:
-
-        db.close()
-
-@router.post("/financeiro")
-def criar_cobranca(data: PagamentoCreate):
-
-    db = SessionLocal()
-
-    try:
-
-        usuario = db.query(Usuario).filter(
-            Usuario.cpf == data.cpf
-        ).first()
-
-        if not usuario:
-            return {
-                "status": "erro",
-                "mensagem": "Morador não encontrado"
-            }
-
-        pagamento = Pagamento(
-            usuario_id=usuario.id,
-            descricao=data.descricao,
-            valor=data.valor,
-            vencimento=data.vencimento,
-            status="PENDENTE"
-        )
-
-        db.add(pagamento)
-        db.commit()
-        db.refresh(pagamento)
-
-        return {
-            "status": "ok",
-            "mensagem": "Cobrança criada",
-            "id": pagamento.id
-        }
-
-    finally:
-        db.close()
-
-@router.post("/financeiro/recorrente")
-def criar_cobranca_recorrente(
-    dados: CobrancaRecorrenteCreate
-):
-
-    db = SessionLocal()
-
-    try:
-
-        cobranca = CobrancaRecorrente(
-            descricao=dados.descricao,
-            valor=dados.valor,
-            dia_vencimento=dados.dia_vencimento,
-            ativo=True
-        )
-
-        db.add(cobranca)
-        db.commit()
-        db.refresh(cobranca)
-
-        return {
-            "status": "ok",
-            "mensagem": "Cobrança recorrente criada",
-            "id": cobranca.id
-        }
-
-    finally:
-
-        db.close()
-
-from datetime import date
-from calendar import monthrange
-
-def gerar_cobrancas_mensais():
-
-    db = SessionLocal()
-
-    try:
-
-        recorrentes = db.query(CobrancaRecorrente).filter(
-            CobrancaRecorrente.ativo == True
-        ).all()
 
         hoje = date.today()
 
-        moradores = db.query(Usuario).filter(
-            Usuario.tipo == "MORADOR"
-        ).all()
+        # Todas as cobranças
+        pagamentos = db.query(Pagamento).all()
 
-        for cobranca in recorrentes:
+        # Quantidade de cobranças pagas
+        pagas = 0
 
-            dia = min(
-                cobranca.dia_vencimento,
-                monthrange(hoje.year, hoje.month)[1]
-            )
+        # Quantidade de cobranças atrasadas
+        atrasadas = 0
 
-            vencimento = date(
-                hoje.year,
-                hoje.month,
-                dia
-            )
+        # Quantidade de cobranças pendentes
+        pendentes = 0
 
-            for morador in moradores:
+        # Valores
+        valor_arrecadado = 0
+        valor_em_aberto = 0
 
-                existe = db.query(Pagamento).filter(
-                    Pagamento.usuario_id == morador.id,
-                    Pagamento.vencimento == vencimento,
-                    Pagamento.descricao == cobranca.descricao
-                ).first()
+        for pagamento in pagamentos:
 
-                if not existe:
+            if pagamento.status == "PAGO":
 
-                    pagamento = Pagamento(
-                        usuario_id=morador.id,
-                        descricao=cobranca.descricao,
-                        valor=cobranca.valor,
-                        vencimento=vencimento,
-                        status="PENDENTE"
-                    )
+                pagas += 1
 
-                    db.add(pagamento)
+                valor_arrecadado += pagamento.valor
 
-        db.commit()
+            elif pagamento.vencimento < hoje:
+
+                atrasadas += 1
+
+                valor_em_aberto += pagamento.valor
+
+            else:
+
+                pendentes += 1
+
+                valor_em_aberto += pagamento.valor
+
+        # Cobrança recorrente ativa
+        cobranca_ativa = db.query(
+            CobrancaRecorrente
+        ).filter(
+            CobrancaRecorrente.ativo == True
+        ).first()
+
+        if cobranca_ativa:
+
+            cobranca_ativa_data = {
+                "id": cobranca_ativa.id,
+                "descricao": cobranca_ativa.descricao,
+                "valor": cobranca_ativa.valor,
+                "dia_vencimento": cobranca_ativa.dia_vencimento,
+                "ativo": cobranca_ativa.ativo
+            }
+
+        else:
+
+            cobranca_ativa_data = None
+
+        return {
+
+            "pagas": pagas,
+
+            "atrasadas": atrasadas,
+
+            "pendentes": pendentes,
+
+            "valor_arrecadado": valor_arrecadado,
+
+            "valor_em_aberto": valor_em_aberto,
+
+            "cobranca_ativa": cobranca_ativa_data
+        }
 
     finally:
+
         db.close()
