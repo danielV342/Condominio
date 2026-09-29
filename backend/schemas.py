@@ -34,3 +34,11 @@ class PagamentoCreate(BaseModel):
     descricao: str
     valor: float
     vencimento: date
+
+from pydantic import BaseModel
+
+
+class CobrancaRecorrenteCreate(BaseModel):
+    descricao: str
+    valor: float
+    dia_vencimento: int

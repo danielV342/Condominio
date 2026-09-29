@@ -3,6 +3,7 @@ from backend.database import SessionLocal
 from backend.models import Pagamento, Usuario
 from backend.schemas import PagamentoCreate
 from backend.models import CobrancaRecorrente
+from backend.schemas import CobrancaRecorrenteCreate
 
 router = APIRouter()
 
@@ -80,6 +81,36 @@ def criar_cobranca(data: PagamentoCreate):
         }
 
     finally:
+        db.close()
+
+@router.post("/financeiro/recorrente")
+def criar_cobranca_recorrente(
+    dados: CobrancaRecorrenteCreate
+):
+
+    db = SessionLocal()
+
+    try:
+
+        cobranca = CobrancaRecorrente(
+            descricao=dados.descricao,
+            valor=dados.valor,
+            dia_vencimento=dados.dia_vencimento,
+            ativo=True
+        )
+
+        db.add(cobranca)
+        db.commit()
+        db.refresh(cobranca)
+
+        return {
+            "status": "ok",
+            "mensagem": "Cobrança recorrente criada",
+            "id": cobranca.id
+        }
+
+    finally:
+
         db.close()
 
 from datetime import date
