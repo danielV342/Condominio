@@ -70,6 +70,34 @@ class Pagamento(Base):
 
     usuario = relationship("Usuario")
 
+
+class CobrancaRecorrente(Base):
+    __tablename__ = "cobrancas_recorrentes"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    descricao = Column(
+        String,
+        nullable=False
+    )
+
+    valor = Column(
+        Float,
+        nullable=False
+    )
+
+    dia_vencimento = Column(
+        Integer,
+        nullable=False
+    )
+
+    ativo = Column(
+        Boolean,
+        default=True,
+        nullable=False
+    )
+    
+
 class Mural(Base):
     __tablename__ = "mural"
 

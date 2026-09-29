@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 from backend.database import SessionLocal
 from backend.models import Pagamento, Usuario
+from backend.schemas import PagamentoCreate
+from backend.models import CobrancaRecorrente
 
 router = APIRouter()
 
@@ -43,14 +45,14 @@ def listar_pagamentos(cpf: str):
         db.close()
 
 @router.post("/financeiro")
-def criar_cobranca(data: dict):
+def criar_cobranca(data: PagamentoCreate):
 
     db = SessionLocal()
 
     try:
 
         usuario = db.query(Usuario).filter(
-            Usuario.cpf == data["cpf"]
+            Usuario.cpf == data.cpf
         ).first()
 
         if not usuario:
@@ -61,9 +63,9 @@ def criar_cobranca(data: dict):
 
         pagamento = Pagamento(
             usuario_id=usuario.id,
-            descricao=data["descricao"],
-            valor=data["valor"],
-            vencimento=data["vencimento"],
+            descricao=data.descricao,
+            valor=data.valor,
+            vencimento=data.vencimento,
             status="PENDENTE"
         )
 
@@ -76,6 +78,63 @@ def criar_cobranca(data: dict):
             "mensagem": "Cobrança criada",
             "id": pagamento.id
         }
+
+    finally:
+        db.close()
+
+from datetime import date
+from calendar import monthrange
+
+def gerar_cobrancas_mensais():
+
+    db = SessionLocal()
+
+    try:
+
+        recorrentes = db.query(CobrancaRecorrente).filter(
+            CobrancaRecorrente.ativo == True
+        ).all()
+
+        hoje = date.today()
+
+        moradores = db.query(Usuario).filter(
+            Usuario.tipo == "MORADOR"
+        ).all()
+
+        for cobranca in recorrentes:
+
+            dia = min(
+                cobranca.dia_vencimento,
+                monthrange(hoje.year, hoje.month)[1]
+            )
+
+            vencimento = date(
+                hoje.year,
+                hoje.month,
+                dia
+            )
+
+            for morador in moradores:
+
+                existe = db.query(Pagamento).filter(
+                    Pagamento.usuario_id == morador.id,
+                    Pagamento.vencimento == vencimento,
+                    Pagamento.descricao == cobranca.descricao
+                ).first()
+
+                if not existe:
+
+                    pagamento = Pagamento(
+                        usuario_id=morador.id,
+                        descricao=cobranca.descricao,
+                        valor=cobranca.valor,
+                        vencimento=vencimento,
+                        status="PENDENTE"
+                    )
+
+                    db.add(pagamento)
+
+        db.commit()
 
     finally:
         db.close()

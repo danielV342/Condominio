@@ -28,3 +28,9 @@ class PagamentoResponse(BaseModel):
     vencimento: date
     status: str
     data_pagamento: date | None
+
+class PagamentoCreate(BaseModel):
+    cpf: str
+    descricao: str
+    valor: float
+    vencimento: date
