@@ -218,3 +218,51 @@ def desativar_cobranca_recorrente(
         return {"sucesso": True, "mensagem": "Cobrança recorrente desativada."}
     finally:
         db.close()
+
+@router.get("/financeiro/cobrancas/{cpf}")
+def listar_cobrancas_por_cpf(cpf: str):
+    db = SessionLocal()
+
+    try:
+        # Remove pontuação do CPF, caso venha como 123.456.789-00
+        cpf_limpo = "".join(filter(str.isdigit, cpf))
+
+        usuario = db.query(Usuario).filter(
+            Usuario.cpf == cpf_limpo
+        ).first()
+
+        if not usuario:
+            raise HTTPException(
+                status_code=404,
+                detail="Usuário não encontrado."
+            )
+
+        pagamentos = db.query(Pagamento).filter(
+            Pagamento.usuario_id == usuario.id
+        ).order_by(
+            Pagamento.vencimento.desc()
+        ).all()
+
+        cobrancas = []
+
+        for pagamento in pagamentos:
+            cobrancas.append({
+                "id": pagamento.id,
+                "descricao": pagamento.descricao,
+                "valor": float(pagamento.valor or 0),
+                "vencimento": pagamento.vencimento,
+                "status": pagamento.status,
+                "data_pagamento": pagamento.data_pagamento,
+            })
+
+        return {
+            "usuario": {
+                "id": usuario.id,
+                "nome": usuario.nome,
+                "cpf": usuario.cpf,
+            },
+            "cobrancas": cobrancas
+        }
+
+    finally:
+        db.close()
