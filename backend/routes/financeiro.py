@@ -124,6 +124,22 @@ def criar_cobranca_recorrente(
             if str(morador.tipo).upper() == "MORADOR"
         ]
 
+        print("TOTAL USUÁRIOS ATIVOS:", len(
+            db.query(Usuario).filter(Usuario.ativo.is_(True)).all()
+            ))
+
+        print("MORADORES ENCONTRADOS:", len(moradores))
+
+        for morador in moradores:
+            print(
+            "MORADOR:",
+            morador.id,
+            morador.nome,
+            morador.cpf,
+            morador.tipo,
+            morador.ativo
+        )
+
         criados = 0
         for morador in moradores:
             existe = db.query(Pagamento.id).filter(
