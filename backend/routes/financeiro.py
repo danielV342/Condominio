@@ -266,3 +266,25 @@ def listar_cobrancas_por_cpf(cpf: str):
 
     finally:
         db.close()
+
+@router.get("/financeiro/pagamentos/debug")
+def debug_pagamentos():
+    db = SessionLocal()
+
+    try:
+        pagamentos = db.query(Pagamento).all()
+
+        return [
+            {
+                "id": p.id,
+                "usuario_id": p.usuario_id,
+                "descricao": p.descricao,
+                "valor": float(p.valor or 0),
+                "vencimento": p.vencimento,
+                "status": p.status,
+            }
+            for p in pagamentos
+        ]
+
+    finally:
+        db.close()
