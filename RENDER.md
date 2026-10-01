@@ -1,4 +1,4 @@
-# Configuração no Render
+# Deploy no Render
 
 ## Build Command
 
@@ -12,29 +12,32 @@ pip install -r requirements.txt
 uvicorn backend.main:app --host 0.0.0.0 --port $PORT
 ```
 
-## Environment Variables
+## Variáveis de ambiente
 
-Configure em **Environment**:
+Configure no Render:
 
 ```text
 DATABASE_URL=<URL do PostgreSQL do Render>
 RESET_DATABASE=true
 ```
 
-### Importante sobre RESET_DATABASE
+### RESET_DATABASE
 
-Com `RESET_DATABASE=true`, o banco PostgreSQL será apagado e recriado sempre que o processo do backend iniciar. Isso normalmente ocorre após um deploy, mas também pode ocorrer após reinicializações/restarts do serviço.
+- `true`: apaga todas as tabelas na inicialização, recria o banco e recria o administrador padrão.
+- `false`: preserva os dados existentes e apenas cria tabelas que ainda não existirem.
 
-Para desenvolvimento/testes, mantenha:
+**Atenção:** `RESET_DATABASE=true` é destrutivo. Use somente enquanto estiver iniciando/testando o sistema.
+
+## Administrador padrão após um reset
 
 ```text
-RESET_DATABASE=true
+CPF: 00000000000
+Senha: admin123
+Tipo: SINDICO
 ```
 
-Quando quiser preservar os dados:
+Depois que o banco estiver pronto para uso, altere no Render:
 
 ```text
 RESET_DATABASE=false
 ```
-
-Não use `true` em um ambiente com dados que precisam ser mantidos.

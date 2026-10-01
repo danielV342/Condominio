@@ -4,6 +4,9 @@ from datetime import date
 from fastapi import FastAPI
 
 from backend.database import Base, engine, SessionLocal
+# Importa os modelos antes de resetar/criar o schema, garantindo que todas
+# as tabelas estejam registradas no metadata do SQLAlchemy.
+from backend import models  # noqa: F401
 from backend.models import Usuario
 from backend.auth import gerar_hash
 from backend.routes import usuarios
@@ -16,15 +19,14 @@ RESET_DATABASE = os.getenv("RESET_DATABASE", "false").strip().lower() in {
 }
 
 
-# ATENÇÃO: quando habilitado, todos os dados do banco são apagados.
 if RESET_DATABASE:
-    print("RESET_DATABASE=true — apagando todas as tabelas...")
+    print("RESET_DATABASE=true -> apagando o banco de dados...")
     Base.metadata.drop_all(bind=engine)
-    print("Banco apagado com sucesso.")
+    print("Banco de dados apagado.")
 
 
 Base.metadata.create_all(bind=engine)
-print("Banco criado/atualizado com sucesso.")
+print("Estrutura do banco verificada/criada.")
 
 
 app = FastAPI()

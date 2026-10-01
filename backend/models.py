@@ -39,7 +39,7 @@ class Pagamento(Base):
     usuario_id = Column(
         Integer,
         ForeignKey("usuarios.id"),
-        nullable=False
+        nullable=True
     )
 
     descricao = Column(
