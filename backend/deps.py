@@ -1,31 +1,19 @@
 from fastapi import Header, HTTPException
+
 from backend.auth import verificar_token
 
-# VALIDAR USUÁRIO LOGADO
 
-def usuario_logado(authorization: str = Header(None)):
-
+def usuario_logado(authorization: str | None = Header(default=None)):
+    """Retorna os dados do usuário presentes no JWT do header Authorization."""
     if not authorization:
-        raise HTTPException(
-            status_code=401,
-            detail="Token não enviado"
-        )
+        raise HTTPException(status_code=401, detail="Token não enviado")
 
-    try:
-        token = authorization.split(" ")[1]
+    partes = authorization.split(" ", 1)
+    if len(partes) != 2 or partes[0].lower() != "bearer" or not partes[1].strip():
+        raise HTTPException(status_code=401, detail="Token inválido")
 
-    except:
-        raise HTTPException(
-            status_code=401,
-            detail="Token inválido"
-        )
-
-    dados = verificar_token(token)
-
+    dados = verificar_token(partes[1].strip())
     if not dados:
-        raise HTTPException(
-            status_code=401,
-            detail="Token expirado ou inválido"
-        )
+        raise HTTPException(status_code=401, detail="Token expirado ou inválido")
 
     return dados
