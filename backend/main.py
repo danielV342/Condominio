@@ -1,3 +1,6 @@
+import os
+from datetime import date
+
 from fastapi import FastAPI
 
 from backend.database import Base, engine, SessionLocal
@@ -7,9 +10,22 @@ from backend.routes import usuarios
 from backend.routes import moradores
 from backend.routes import financeiro
 
-from datetime import date
+
+RESET_DATABASE = os.getenv("RESET_DATABASE", "false").strip().lower() in {
+    "1", "true", "yes", "sim"
+}
+
+
+# ATENÇÃO: quando habilitado, todos os dados do banco são apagados.
+if RESET_DATABASE:
+    print("RESET_DATABASE=true — apagando todas as tabelas...")
+    Base.metadata.drop_all(bind=engine)
+    print("Banco apagado com sucesso.")
+
 
 Base.metadata.create_all(bind=engine)
+print("Banco criado/atualizado com sucesso.")
+
 
 app = FastAPI()
 
@@ -37,9 +53,7 @@ def criar_admin():
 
             db.add(novo_admin)
             db.commit()
-
             print("Usuário administrador criado.")
-
         else:
             print("Usuário administrador já existe.")
 
