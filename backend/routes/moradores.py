@@ -1,12 +1,13 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from backend.database import SessionLocal
+from backend.deps import apenas_sindico
 from backend.models import Usuario
 
 router = APIRouter()
 
 
 @router.get("/moradores")
-def listar_moradores():
+def listar_moradores(usuario=Depends(apenas_sindico)):
 
     db = SessionLocal()
 

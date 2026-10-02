@@ -20,6 +20,11 @@ class Usuario(Base):
 
     ativo = Column(Boolean, nullable=False, default=True)
 
+    # Dados de perfil (editáveis pelo próprio usuário)
+    email = Column(String(150), nullable=True)
+    telefone = Column(String(30), nullable=True)
+    unidade = Column(String(30), nullable=True)
+
     criado_em = Column(
         DateTime,
         nullable=False,
@@ -119,3 +124,51 @@ class Reserva(Base):
     data = Column(Date, nullable=False)
     hora = Column(Time, nullable=False)
     status = Column(String(20), nullable=False, default="pendente")
+
+
+
+class Aviso(Base):
+    __tablename__ = "avisos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    titulo = Column(String(120), nullable=False)
+    mensagem = Column(Text, nullable=False)
+    prioridade = Column(String(15), nullable=False, default="NORMAL")
+    autor_id = Column(Integer, ForeignKey("usuarios.id"), nullable=True)
+    criado_em = Column(DateTime, nullable=False, server_default=func.current_timestamp())
+
+    autor = relationship("Usuario")
+
+
+class Chamado(Base):
+    """Solicitação de manutenção ou registro de ocorrência feito por um morador."""
+
+    __tablename__ = "chamados"
+
+    id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    tipo = Column(String(15), nullable=False, default="MANUTENCAO")  # MANUTENCAO | OCORRENCIA
+    categoria = Column(String(40), nullable=False)
+    titulo = Column(String(120), nullable=False)
+    descricao = Column(Text, nullable=False)
+    local = Column(String(100), nullable=True)
+    prioridade = Column(String(10), nullable=False, default="MEDIA")  # BAIXA | MEDIA | ALTA
+    status = Column(String(20), nullable=False, default="ABERTO")  # ABERTO | EM_ANDAMENTO | CONCLUIDO
+    resposta = Column(Text, nullable=True)
+    criado_em = Column(DateTime, nullable=False, server_default=func.current_timestamp())
+    atualizado_em = Column(DateTime, nullable=False, server_default=func.current_timestamp())
+
+    usuario = relationship("Usuario")
+
+
+class Condominio(Base):
+    """Dados do condomínio (uma única linha, id=1)."""
+
+    __tablename__ = "condominio"
+
+    id = Column(Integer, primary_key=True)
+    nome = Column(String(150), nullable=False, default="Meu Condomínio")
+    endereco = Column(String(200), nullable=True)
+    telefone = Column(String(30), nullable=True)
+    email = Column(String(150), nullable=True)
+    regras = Column(Text, nullable=True)

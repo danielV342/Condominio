@@ -69,8 +69,8 @@ def gerar_pix(pagamento_id: int, usuario=Depends(usuario_logado)):
             criado = mp.criar_pagamento_pix(
                 valor=pagamento.valor,
                 descricao=pagamento.descricao,
-                # O cadastro não tem e-mail; o Mercado Pago exige um e-mail do pagador.
-                email=f"morador{dono.id}@meucondominio.app",
+                # O Mercado Pago exige e-mail do pagador: usa o do perfil, se houver.
+                email=dono.email or f"morador{dono.id}@meucondominio.app",
                 referencia=str(pagamento.id),
                 expira_em=expira_em.replace(tzinfo=UTC),
                 notification_url=_url_webhook(),

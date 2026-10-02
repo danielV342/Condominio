@@ -18,7 +18,11 @@ Configure no Render:
 
 ```text
 DATABASE_URL=<URL do PostgreSQL do Render>
-RESET_DATABASE=true
+RESET_DATABASE=false
+SECRET_KEY=<chave longa e aleatória>
+MP_ACCESS_TOKEN=<access token do Mercado Pago>
+MP_WEBHOOK_SECRET=<assinatura secreta do webhook (opcional)>
+PUBLIC_BASE_URL=https://condominio-vw2i.onrender.com
 ```
 
 ### RESET_DATABASE
