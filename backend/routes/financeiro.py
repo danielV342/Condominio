@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from backend.database import SessionLocal
 from backend.models import Pagamento, Usuario, CobrancaRecorrente
 from backend.schemas import CobrancaRecorrenteCreate
-from backend.deps import usuario_logado
+from backend.deps import apenas_sindico, usuario_logado
 
 router = APIRouter()
 
@@ -30,7 +30,7 @@ def proximo_vencimento(dia: int, hoje: date | None = None) -> date:
 
 
 @router.get("/financeiro/dashboard")
-def dashboard_financeiro():
+def dashboard_financeiro(usuario=Depends(apenas_sindico)):
     db = SessionLocal()
 
     try:
@@ -236,12 +236,21 @@ def desativar_cobranca_recorrente(
         db.close()
 
 @router.get("/financeiro/cobrancas/{cpf}")
-def listar_cobrancas_por_cpf(cpf: str):
+def listar_cobrancas_por_cpf(cpf: str, usuario=Depends(usuario_logado)):
     db = SessionLocal()
 
     try:
         # Remove pontuação do CPF, caso venha como 123.456.789-00
         cpf_limpo = "".join(filter(str.isdigit, cpf))
+
+        # Morador só vê as próprias cobranças; síndico vê as de qualquer morador.
+        cpf_token = "".join(filter(str.isdigit, str(usuario.get("sub", ""))))
+        eh_sindico = str(usuario.get("tipo", "")).upper() == "SINDICO"
+        if not eh_sindico and cpf_token != cpf_limpo:
+            raise HTTPException(
+                status_code=403,
+                detail="Você não pode ver as cobranças de outro morador."
+            )
 
         usuario = db.query(Usuario).filter(
             Usuario.cpf == cpf_limpo
@@ -284,7 +293,7 @@ def listar_cobrancas_por_cpf(cpf: str):
         db.close()
 
 @router.get("/financeiro/pagamentos/debug")
-def debug_pagamentos():
+def debug_pagamentos(usuario=Depends(apenas_sindico)):
     db = SessionLocal()
 
     try:

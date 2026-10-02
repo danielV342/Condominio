@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Date, DateTime, Enum, Integer, Numeric, String, Time, Float, ForeignKey
+from sqlalchemy import Boolean, Column, Date, DateTime, Enum, Integer, Numeric, String, Text, Time, Float, ForeignKey
 from backend.database import Base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -67,6 +67,11 @@ class Pagamento(Base):
         Date,
         nullable=True
     )
+
+    # Pix (Mercado Pago)
+    mp_payment_id = Column(String(40), nullable=True)
+    pix_copia_e_cola = Column(Text, nullable=True)
+    pix_expira_em = Column(DateTime, nullable=True)
 
     usuario = relationship("Usuario")
 

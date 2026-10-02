@@ -3,7 +3,7 @@ from datetime import date
 
 from fastapi import FastAPI
 
-from backend.database import Base, engine, SessionLocal
+from backend.database import Base, engine, SessionLocal, garantir_colunas_pix
 # Importa os modelos antes de resetar/criar o schema, garantindo que todas
 # as tabelas estejam registradas no metadata do SQLAlchemy.
 from backend import models  # noqa: F401
@@ -12,6 +12,7 @@ from backend.auth import gerar_hash
 from backend.routes import usuarios
 from backend.routes import moradores
 from backend.routes import financeiro
+from backend.routes import pix
 
 
 RESET_DATABASE = os.getenv("RESET_DATABASE", "false").strip().lower() in {
@@ -26,6 +27,7 @@ if RESET_DATABASE:
 
 
 Base.metadata.create_all(bind=engine)
+garantir_colunas_pix()
 print("Estrutura do banco verificada/criada.")
 
 
@@ -34,6 +36,7 @@ app = FastAPI()
 app.include_router(usuarios.router)
 app.include_router(moradores.router)
 app.include_router(financeiro.router)
+app.include_router(pix.router)
 
 
 def criar_admin():

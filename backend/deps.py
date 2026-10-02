@@ -1,4 +1,4 @@
-from fastapi import Header, HTTPException
+from fastapi import Depends, Header, HTTPException
 
 from backend.auth import verificar_token
 
@@ -17,3 +17,11 @@ def usuario_logado(authorization: str | None = Header(default=None)):
         raise HTTPException(status_code=401, detail="Token expirado ou inválido")
 
     return dados
+
+
+
+def apenas_sindico(usuario=Depends(usuario_logado)):
+    """Exige um JWT de síndico."""
+    if str(usuario.get("tipo", "")).upper() != "SINDICO":
+        raise HTTPException(status_code=403, detail="Acesso restrito ao síndico.")
+    return usuario
