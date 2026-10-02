@@ -11,10 +11,18 @@ if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL não foi configurada.")
 
 
-engine = create_engine(
-    DATABASE_URL,
-    pool_pre_ping=True
-)
+_opcoes_engine = {"pool_pre_ping": True}
+
+if DATABASE_URL.startswith("postgres"):
+    # connect_timeout: não ficar parado se o banco estiver inacessível.
+    # lock_timeout: se outra conexão (ex.: a versão antiga do app durante um deploy)
+    # segurar o bloqueio de uma tabela, falha em 5 s em vez de esperar para sempre.
+    _opcoes_engine["connect_args"] = {
+        "connect_timeout": 10,
+        "options": "-c lock_timeout=5000",
+    }
+
+engine = create_engine(DATABASE_URL, **_opcoes_engine)
 
 
 SessionLocal = sessionmaker(
